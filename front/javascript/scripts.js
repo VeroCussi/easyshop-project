@@ -1,23 +1,18 @@
 const url = "http://localhost:3000/api/products";
 
-// recordar que la API solo funciona si tengo el node server conectado 
-
-// Meterlo dentro de una función.
-
+// Récupère des éléments à partir d'une URL fournie et les ajoute dynamiquement à la page d'accueil.
 function fetchItems() {
-    // Realiza una solicitud a la URL proporcionada
-    fetch(url)
-        // Convierte la respuesta a formato JSON
+    
+    fetch(url)    
         .then(response => response.json())
-        // Procesa los datos recibidos
         .then(items => {
 
-            // Obtiene el contenedor donde se agregarán los elementos
-            let itemsContainer = document.getElementById("items");
+        // Obtient le conteneur où les éléments seront ajoutés
+        let itemsContainer = document.getElementById("items");
 
-            // Itera sobre cada item recibido
+            // Itère sur chaque élément reçu
             for (let item of items) {
-                // Crea el HTML para cada producto
+                // Crée le HTML pour chaque produit
                 let itemHtml = `
                     <a href="./product.html?id=${item._id}">
                         <article class="items">
@@ -29,14 +24,13 @@ function fetchItems() {
                         </article>
                     </a>
                 `;
-                // Añade el HTML creado al contenedor
+                // Ajoute le HTML créé au conteneur
                 itemsContainer.innerHTML += itemHtml;
             }
         })
-        // Maneja cualquier error que ocurra durante la solicitud
+        // Handle any errors
         .catch(error => console.error("Error: ", error));
 }
-
-// Llamada a la función
+// Call the function
 fetchItems();
 
