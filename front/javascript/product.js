@@ -1,30 +1,29 @@
-// URL con parametros editados para poder acceder al ID
-
+// URL avec paramètres édités pour pouvoir accéder à l'ID
 let params = new URLSearchParams(window.location.search);
 let productId = params.get("id");
 
-// Función para obtener los detalles del producto desde la API
+// Fonction pour obtenir les détails du produit depuis l'API
 function fetchProductDetails(productId) {
     const url = `http://localhost:3000/api/products/${productId}`;
     fetch(url)
         .then(response => response.json())
         .then(product => {
-            // Llama a la función para mostrar los detalles del producto
+            // Appelle la fonction pour afficher les détails du produit
             displayProductDetails(product);
         })
         .catch(error => console.error("Error: ", error));
 }
 
-// Función para mostrar los detalles del producto en la página
+// Fonction pour afficher les détails du produit sur la page
 function displayProductDetails(product) {
-    // Asignamos los detalles del producto a los elementos correspondientes en el DOM
+    // Les détails du produit sont assignés aux éléments correspondants dans le DOM
     document.getElementById("title").innerText = product.name;
     document.getElementById("price").innerText = product.price;
     document.getElementById("description").innerText = product.description;
     document.querySelector(".item__img").innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`;
 
-    // forEach crea un selector option para elegir los colores de cada producto
     const colorsSelect = document.getElementById("colors");
+    // Crée un sélecteur d'option pour choisir les couleurs de chaque produit
     product.colors.forEach(color => {
         let option = document.createElement("option");
         option.value = color;
@@ -32,43 +31,33 @@ function displayProductDetails(product) {
         colorsSelect.appendChild(option);
     });
 
-    // En lugar de crearlo utilizando el html, he utilizado el método forEach para crear el elemento option
-    // de está manera las diferentes funcionalidades están en una sección diferentes y es más
-    // fácil de encontrar y modificar en un futuro
-
-    // ce script JavaScript crée des éléments option pour chaque couleur 
-    // dans la liste des couleurs d'un produit, puis les ajoute à un élément de sélection dans le document HTML.
-
-    // Establecer la cantidad inicial en 1
+    // Définir la quantité initiale à 1
     const quantityInput = document.getElementById("quantity");
     quantityInput.value = 1;
 
-    // Actualizar el precio total basado en la cantidad inicial
+    // Mettre à jour le prix total en fonction de la quantité initiale
     updateTotalPrice(product.price);
 
-    // Agregar un evento para actualizar el precio cuando la cantidad cambia
+    // Ajouter un événement pour mettre à jour le prix lorsque la quantité change
     document.getElementById("quantity").addEventListener("input", function(event) {
         updateTotalPrice(product.price);
     });
 
-// Función para actualizar el precio total
-// Utilizar parseInt para convertir el price en number, sino no funciona
+// Fonction pour mettre à jour le prix total
 function updateTotalPrice(price) {
     const quantity = parseInt(document.getElementById('quantity').value);
     const totalPriceElement = document.getElementById('price');
     totalPriceElement.innerText = (price * quantity);
-}
+}}
 
-}
-
-// Llama a la función para obtener y mostrar los detalles del producto
+// Appelle la fonction pour obtenir et afficher les détails du produit
 if (productId) {
     fetchProductDetails(productId);
 } else {
     console.error("Product ID not found in the URL");
 }
 
-// funcion para guardar el producto en el carrito una vez se hace clic en el boton.
+// Fonction pour sauvegarder le produit dans le panier une fois le bouton cliqué
 document.getElementById("addToCart").addEventListener("click", function() {
     const color = document.getElementById("colors").value;
     const quantity = parseInt(document.getElementById("quantity").value);
@@ -84,41 +73,22 @@ document.getElementById("addToCart").addEventListener("click", function() {
         quantity: quantity
     };
 
-    // Obtiene los datos actuales del carrito desde localStorage
+    // Obtient les données actuelles du panier depuis localStorage
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    // Verifica si el producto ya está en el carrito
+    // Vérifie si le produit est déjà dans le panier
     const productAdded = cart.find(item => item.id === productId && item.color === color);
     
     if (productAdded >= 0) {
-        // Si el producto ya está en el carrito, actualizamos la cantidad
+        // Si le produit est déjà dans le panier, la quantité est mise à jour
         cart[productAdded].quantity += quantity;
     } else {
-        // Si el producto no está en el carrito, lo agregamos
+        // Si le produit n'est pas dans le panier, il est ajouté
         cart.push(productData);
     }
 
-    // Guardar los datos actualizados del carrito en localStorage
+    // Enregistrer les données mises à jour du panier dans localStorage
     localStorage.setItem("cart", JSON.stringify(cart));
 
     alert("Produit ajouté au panier");
-
-    updateCartCount();
 });
-
-//::::::::PRUEBA:::::::::::::::::::::::::::::
-// Función para actualizar el número de productos en el menú
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const cartCount = cart.reduce((total, product) => total + product.quantity, 0);
-    const cartMenuElement = document.getElementById("cartMenu");
-
-    if (cartCount > 0) {
-        cartMenuElement.innerHTML = `Panier (${cartCount})`;
-    } else {
-        cartMenuElement.innerHTML = `Panier`;
-    }
-}
-
-// Llamar a la función para actualizar el número de productos al cargar la página
-document.addEventListener("DOMContentLoaded", updateCartCount);

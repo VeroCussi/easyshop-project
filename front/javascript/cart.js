@@ -7,24 +7,21 @@ const totalPriceElement = document.getElementById("totalPrice");
 let totalQuantity = 0;
 let totalPrice = 0;
 
-// Función para recuperar los datos del carrito de localStorage
+// Fonction pour récupérer les données du panier depuis localStorage
 function loadCart() {
     cart.forEach(item => {
         const url = `http://localhost:3000/api/products/${item.id}`;
         fetch(url)
             .then(response => response.json())
             .then(product => {
-                // Verificar si el artículo ya existe en el carrito
                 const existingArticle = cartItemsContainer.querySelector(`.cart__item[data-id="${item.id}"][data-color="${item.color}"]`);
                 if (existingArticle) {
-                    // Actualizar la cantidad y el precio si el artículo ya existe
                     const quantityElement = existingArticle.querySelector(".itemQuantity");
                     const priceElement = existingArticle.querySelector(".cart__item__content__description p:last-child");
                     const newQuantity = parseInt(quantityElement.value) + parseInt(item.quantity);
                     quantityElement.value = newQuantity;
-                    priceElement.textContent = `${newQuantity * product.price} €`;
+                    priceElement.textContent = `${product.price} €`;
                 } else {
-                    // Crear un nuevo artículo si no existe
                     const article = document.createElement("article");
                     article.classList.add("cart__item");
                     article.setAttribute("data-id", item.id);
@@ -37,7 +34,7 @@ function loadCart() {
                             <div class="cart__item__content__description">
                                 <h2>${product.name}</h2>
                                 <p>${item.color}</p>
-                                <p>${item.quantity * product.price} €</p>
+                                <p>${product.price} €</p>
                             </div>
                             <div class="cart__item__content__settings">
                                 <div class="cart__item__content__settings__quantity">
@@ -51,8 +48,7 @@ function loadCart() {
                         </div>
                     `;
                     cartItemsContainer.appendChild(article);
-    
-                    // Agregar eventos para la actualización de la cantidad y la eliminación del producto
+
                     article.querySelector(".itemQuantity").addEventListener("change", function(event) {
                         updateQuantity(item.id, item.color, event.target.value);
                     });
@@ -61,19 +57,17 @@ function loadCart() {
                     });
                 }
 
-                // Actualizar la cantidad y el precio total
                 totalQuantity += parseInt(item.quantity);
                 totalPrice += product.price * item.quantity;
 
-                // Actualizar los elementos del DOM para la cantidad total y el precio total
                 totalQuantityElement.innerText = totalQuantity;
                 totalPriceElement.innerText = totalPrice;
             })
-            .catch(error => console.error("Error: ", error));
+            .catch(error => console.error("Erreur : ", error));
     });
 }
 
-// Función para actualizar la cantidad de un producto en el carrito
+// Fonction pour mettre à jour la quantité d'un produit dans le panier
 function updateQuantity(id, color, newQuantity) {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     const productIndex = cart.findIndex(item => item.id === id && item.color === color);
@@ -81,65 +75,62 @@ function updateQuantity(id, color, newQuantity) {
     if (productIndex >= 0) {
         cart[productIndex].quantity = parseInt(newQuantity);
         localStorage.setItem("cart", JSON.stringify(cart));
-        
-        // Actualizar el DOM dinámicamente
+
         const article = document.querySelector(`.cart__item[data-id="${id}"][data-color="${color}"]`);
         const url = `http://localhost:3000/api/products/${id}`;
         fetch(url)
             .then(response => response.json())
             .then(product => {
                 const priceElement = article.querySelector(".cart__item__content__description p:last-child");
-                priceElement.textContent = `${product.price * newQuantity} €`;
+                priceElement.textContent = `${product.price} €`;
 
-                // Actualizar la cantidad total y el precio total
                 updateTotal();
             })
-            .catch(error => console.error("Error: ", error));
+            .catch(error => console.error("Erreur : ", error));
     }
 }
 
-// Función para eliminar un producto del carrito
+// Fonction pour supprimer un produit du panier
 function deleteItem(id, color) {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     cart = cart.filter(item => item.id !== id || item.color !== color);
     localStorage.setItem("cart", JSON.stringify(cart));
 
-    // Remover el artículo del DOM
     const article = document.querySelector(`.cart__item[data-id="${id}"][data-color="${color}"]`);
     if (article) {
         cartItemsContainer.removeChild(article);
     }
-    
-    // Actualizar la cantidad total y el precio total
+
     updateTotal();
 }
 
-// Función para actualizar dinámicamente
+// Fonction pour mettre à jour dynamiquement le total
 function updateTotal() {
     let totalQuantity = 0;
     let totalPrice = 0;
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    cart.forEach(item => {
+    const promises = cart.map(item => {
         const url = `http://localhost:3000/api/products/${item.id}`;
-        fetch(url)
+        return fetch(url)
             .then(response => response.json())
             .then(product => {
                 totalQuantity += parseInt(item.quantity);
                 totalPrice += product.price * item.quantity;
-
-                // Actualizar los elementos del DOM para la cantidad total y el precio total
-                totalQuantityElement.innerText = totalQuantity;
-                totalPriceElement.innerText = totalPrice;
             })
-            .catch(error => console.error("Error: ", error));
+            .catch(error => console.error("Erreur : ", error));
+    });
+
+    Promise.all(promises).then(() => {
+        totalQuantityElement.innerText = totalQuantity;
+        totalPriceElement.innerText = totalPrice;
     });
 }
 
-// Llamar a la función para cargar los datos del carrito al cargar la página
+// Appeler la fonction pour charger les données du panier au chargement de la page
 document.addEventListener("DOMContentLoaded", loadCart);
 
-// Validar los datos del formulario con expresiones regulares
+// Valider les données du formulaire avec des expressions régulières
 function validateForm() {
     const nameRegex = /^[a-zA-Zàâäéèêëïîôöùûüç -]+$/;
     const addressRegex = /^[0-9a-zA-Zàâäéèêëïîôöùûüç ,.'-]+$/;
@@ -189,7 +180,7 @@ function validateForm() {
     return true;
 }
 
-// Enviar la solicitud de pedido a la API
+// Envoyer la demande de commande à l'API
 function submitOrder() {
     if (!validateForm()) {
         return;
@@ -205,10 +196,10 @@ function submitOrder() {
     const form = document.querySelector(".cart__order__form");
     const formData = new FormData(form);
 
-    // Convertir FormData en una matriz de pares clave-valor
+    // Convertir FormData en un tableau de paires clé-valeur
     const formEntries = [...formData.entries()];
 
-    // Convertir la matriz de pares clave-valor en un objeto
+    // Convertir le tableau de paires clé-valeur en un objet
     const contact = Object.fromEntries(formEntries);
 
     const products = cart.map(item => item.id);
@@ -225,16 +216,16 @@ function submitOrder() {
     })
     .then(response => response.json())
     .then(data => {
-        // Limpiar el carrito en el almacenamiento local
+        // Vider le panier dans le stockage local
         localStorage.removeItem("cart");
 
-        // Redirigir a la página de confirmación con el número de pedido
+        // Rediriger vers la page de confirmation avec le numéro de commande
         window.location.href = `confirmation.html?orderId=${data.orderId}`;
     })
-    .catch(error => console.error("Error:", error));
+    .catch(error => console.error("Erreur :", error));
 }
 
-// Agregar el evento de envío al formulario
+// Ajouter l'événement de soumission au formulaire
 document.querySelector(".cart__order__form").addEventListener("submit", function(event) {
     event.preventDefault();
     submitOrder();
