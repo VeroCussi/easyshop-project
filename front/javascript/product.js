@@ -42,13 +42,14 @@ function displayProductDetails(product) {
     document.getElementById("quantity").addEventListener("input", function(event) {
         updateTotalPrice(product.price);
     });
+}
 
 // Fonction pour mettre à jour le prix total
 function updateTotalPrice(price) {
     const quantity = parseInt(document.getElementById('quantity').value);
     const totalPriceElement = document.getElementById('price');
     totalPriceElement.innerText = (price * quantity);
-}}
+}
 
 // Appelle la fonction pour obtenir et afficher les détails du produit
 if (productId) {
@@ -77,11 +78,11 @@ document.getElementById("addToCart").addEventListener("click", function() {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
     // Vérifie si le produit est déjà dans le panier
-    const productAdded = cart.find(item => item.id === productId && item.color === color);
+    const productIndex = cart.findIndex(item => item.id === productId && item.color === color);
     
-    if (productAdded >= 0) {
+    if (productIndex >= 0) {
         // Si le produit est déjà dans le panier, la quantité est mise à jour
-        cart[productAdded].quantity += quantity;
+        cart[productIndex].quantity += quantity;
     } else {
         // Si le produit n'est pas dans le panier, il est ajouté
         cart.push(productData);
