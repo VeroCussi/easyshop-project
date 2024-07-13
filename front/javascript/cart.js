@@ -149,47 +149,6 @@ function validateForm() {
     const addressRegex = /^[0-9a-zA-Zàâäéèêëïîôöùûüç ,.'-]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const firstName = document.getElementById("firstName").value;
-    const lastName = document.getElementById("lastName").value;
-    const address = document.getElementById("address").value;
-    const city = document.getElementById("city").value;
-    const email = document.getElementById("email").value;
-
-    if (!nameRegex.test(firstName)) {
-        document.getElementById("firstNameErrorMsg").innerText = "Prénom invalide.";
-        return false;
-    } else {
-        document.getElementById("firstNameErrorMsg").innerText = "";
-    }
-
-    if (!nameRegex.test(lastName)) {
-        document.getElementById("lastNameErrorMsg").innerText = "Nom invalide.";
-        return false;
-    } else {
-        document.getElementById("lastNameErrorMsg").innerText = "";
-    }
-
-    if (!addressRegex.test(address)) {
-        document.getElementById("addressErrorMsg").innerText = "Adresse invalide.";
-        return false;
-    } else {
-        document.getElementById("addressErrorMsg").innerText = "";
-    }
-
-    if (!nameRegex.test(city)) {
-        document.getElementById("cityErrorMsg").innerText = "Ville invalide.";
-        return false;
-    } else {
-        document.getElementById("cityErrorMsg").innerText = "";
-    }
-
-    if (!emailRegex.test(email)) {
-        document.getElementById("emailErrorMsg").innerText = "Email invalide.";
-        return false;
-    } else {
-        document.getElementById("emailErrorMsg").innerText = "";
-    }
-
     return true;
 }
 
